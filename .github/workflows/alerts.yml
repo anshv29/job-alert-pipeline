@@ -1,0 +1,69 @@
+name: Job alerts
+
+on:
+  schedule:
+    # Every 3 hours, at 17 minutes past (GitHub is busiest at :00, so we avoid it).
+    # Want it less often? Change "*/3" to "*/6" for every 6 hours.
+    - cron: "17 */3 * * *"
+  workflow_dispatch: {}   # lets you press "Run workflow" by hand
+
+permissions:
+  contents: write   # needed so the list of already-seen jobs can be saved back to your copy
+
+concurrency:
+  group: job-alerts
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # The list of jobs already emailed is kept on its own branch called "state".
+      # That branch is overwritten each time, so your copy never grows.
+      - name: Load the list of jobs already seen
+        run: |
+          if git ls-remote --exit-code --heads origin state > /dev/null 2>&1; then
+            git fetch --depth=1 origin state
+            git show FETCH_HEAD:jobs.db > jobs.db
+            echo "Loaded the saved list"
+          else
+            echo "First run, starting a new list"
+          fi
+
+      - name: Look for new jobs and send the email
+        env:
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python run.py
+
+      # Runs even if the step above failed, so jobs already handled are not repeated next time.
+      - name: Save the list of jobs already seen
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          [ -f jobs.db ] || exit 0
+          rm -rf /tmp/state && mkdir /tmp/state && cp jobs.db /tmp/state/jobs.db
+          cd /tmp/state
+          git init -q -b state
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add jobs.db
+          git commit -q -m "Seen jobs"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin state

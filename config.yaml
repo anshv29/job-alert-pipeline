@@ -1,0 +1,570 @@
+# =============================================================================
+#  JOB ALERT SETTINGS
+#  This is the only file most people ever need to edit.
+#  Lines starting with # are notes for you. The program ignores them.
+#  Be careful to keep the spaces at the start of lines exactly as they are.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# STEP 1. PICK YOUR PRESET (this is the one line most people change)
+#   finance = banking, trading, research, asset management, risk, accounting...
+#   tech    = software, data, machine learning, quant
+# -----------------------------------------------------------------------------
+preset: finance
+
+
+# -----------------------------------------------------------------------------
+# STEP 2. YOUR TARGET
+# -----------------------------------------------------------------------------
+target:
+  # Only jobs that mention one of these years are kept.
+  # Example: [2027] finds "Summer 2027", "Winter 2027 Co-op", "Class of 2027".
+  # Add 2026 if you also want co-ops that start this year: [2026, 2027]
+  years: [2027]
+
+  # Skip jobs whose location contains any of these words. Leave the list empty to see every location.
+  # Example for someone in North America who does not want overseas jobs:
+  #   exclude_locations: [london, hong kong, singapore, tokyo, mumbai, dublin, frankfurt, sydney]
+  exclude_locations: []
+
+  # The year you expect to graduate. Only used by the optional auto-apply feature,
+  # to skip jobs that ask for someone graduating earlier than you.
+  # CHANGE THIS to your own year.
+  grad_year: 2029
+
+# Times in emails are shown in this timezone.
+# Examples: America/New_York, America/Toronto, America/Chicago, America/Los_Angeles, Europe/London
+timezone: America/New_York
+
+
+# -----------------------------------------------------------------------------
+# FIRST RUN
+# By default the very first run does NOT email you everything that is open today.
+# It quietly remembers every current posting, then sends ONE short email saying setup
+# worked. From then on you only get emails about postings that appear after that.
+# Set this to true if you do want the full list of everything currently open.
+# -----------------------------------------------------------------------------
+alerts:
+  send_backlog_on_first_run: false
+
+
+# -----------------------------------------------------------------------------
+# WHERE TO LOOK (true = on, false = off)
+# -----------------------------------------------------------------------------
+sources:
+  greenhouse: true   # companies that post on Greenhouse
+  lever: true        # companies that post on Lever
+  ashby: true        # companies that post on Ashby
+  workday: true      # companies that post on Workday (most big banks)
+  feeds: true        # company career sites with a public job feed (Scotiabank, National Bank, Canada Life)
+  simplify: true     # the public SimplifyJobs internship list on GitHub (mostly tech and quant)
+
+
+# -----------------------------------------------------------------------------
+# OPTIONAL AI FILTER (Claude Haiku)
+# Needs an Anthropic API key (see README, "API cost"). With no key the alerts
+# still work, using the keyword filter only. Expect a few extra irrelevant jobs.
+# -----------------------------------------------------------------------------
+llm:
+  enabled: true
+  model: claude-haiku-4-5
+  max_description_chars: 6000
+
+
+# -----------------------------------------------------------------------------
+# WORKDAY SETTINGS
+# Workday sites only show a short list, so we search for each word below.
+# max_pages: how many pages of 20 results to read per search word.
+# -----------------------------------------------------------------------------
+workday:
+  search_terms: [intern, co-op, summer analyst, student, stagiaire]
+  max_pages: 3
+
+
+# -----------------------------------------------------------------------------
+# EXTRAS (both OFF by default, most people never need them)
+#   auto_apply: fills in application forms on your own computer. See docs/AUTO_APPLY.md.
+#               It needs a database. Alerts do NOT need one.
+#   dashboard:  a nightly summary email of what auto-apply did. Needs auto_apply.
+# -----------------------------------------------------------------------------
+features:
+  auto_apply: false
+  dashboard: false
+
+auto_apply:
+  daily_cap: 10                # most applications sent per day
+  delay_seconds: [45, 150]     # random wait between applications
+
+
+# -----------------------------------------------------------------------------
+# KEYWORDS SHARED BY BOTH PRESETS
+# A job is kept only if it matches: a target year AND a role word AND a level word,
+# and its TITLE contains none of the exclude words.
+# Matching ignores capital letters and only matches whole words.
+# -----------------------------------------------------------------------------
+keywords:
+  # Words that say "this is for students".
+  level_terms:
+    - intern
+    - internship
+    - co-op
+    - co op
+    - coop
+    - summer analyst
+    - summer associate
+    - spring week
+    - spring weeks
+    - spring programme
+    - spring program
+    - discovery day
+    - insight day
+    - insight programme
+    - insight program
+    - diversity program
+    - diversity programme
+    - freshman
+    - sophomore
+    - early insight
+    - early talent
+
+  # If these words are in the TITLE the job is dropped (too senior, or not a student job).
+  exclude_title_terms:
+    - senior
+    - sr
+    - staff
+    - principal
+    - manager
+    - director
+    - vice president
+    - vp
+    - head of
+    - lead
+    - 5+ years
+    - 6+ years
+    - 7+ years
+    - 10+ years
+    - experienced
+    - full-time
+    - full time
+    - talent community
+    - talent network
+
+  # Jobs mentioning these get a yellow "Freshman/Sophomore Program" tag in the email.
+  early_program_terms:
+    - freshman
+    - freshmen
+    - sophomore
+    - sophomores
+    - rising freshman
+    - rising sophomore
+    - early insight
+    - early identification
+    - discovery day
+    - discovery program
+    - diversity program
+    - explore program
+    - spring insight
+    - winter insight
+    - underclassman
+    - underclassmen
+    - spring week
+
+
+# =============================================================================
+#  THE PRESETS
+#  Each preset has: roles, extra level words, a plain-English focus for the AI,
+#  and its list of companies. You can add or delete lines freely.
+# =============================================================================
+presets:
+
+  # ===========================================================================
+  #  FINANCE
+  # ===========================================================================
+  finance:
+    # Plain-English description the AI filter uses to judge each job.
+    llm_focus: >-
+      finance, including investment banking, sales and trading, equity research, asset management,
+      risk, corporate finance, capital markets, wealth management, accounting, and finance or business analyst roles
+    domains:
+      "Investment Banking": mergers and acquisitions, advisory, debt and equity financings, coverage groups
+      "Sales & Trading": sales, trading, markets, flow and derivatives desks
+      "Equity Research": covering companies and writing research
+      "Asset Management": portfolio management, investment analysis, pensions, hedge funds, private equity
+      "Risk": market, credit, operational or model risk
+      "Corporate Finance": FP&A, treasury, financial planning inside a company
+      "Capital Markets": capital markets origination, syndicate, structuring
+      "Wealth Management": advisory, private banking, financial planning for clients
+      "Accounting": accounting, audit, tax, controllership
+      "Analyst": general finance or business analyst work that fits none of the above
+      "Software": software engineering or data science (not finance work)
+
+    # Words that describe the job itself. Kept wide on purpose so finance jobs are not dropped.
+    roles:
+      - investment banking
+      - investment bank
+      - investment banking division
+      - ibd
+      - sales and trading
+      - sales & trading
+      - global markets
+      - markets
+      - trading
+      - trader
+      - equity research
+      - equity
+      - equities
+      - fixed income
+      - research analyst
+      - research associate
+      - asset management
+      - investment management
+      - investment analyst
+      - investments
+      - portfolio
+      - wealth management
+      - private wealth
+      - private banking
+      - financial planning
+      - risk
+      - market risk
+      - credit risk
+      - operational risk
+      - model risk
+      - credit
+      - corporate finance
+      - capital markets
+      - debt capital markets
+      - equity capital markets
+      - leveraged finance
+      - structured finance
+      - restructuring
+      - derivatives
+      - securities
+      - m&a
+      - mergers and acquisitions
+      - private equity
+      - venture capital
+      - hedge fund
+      - commercial banking
+      - corporate banking
+      - banking
+      - bank
+      - finance
+      - financial
+      - financial analyst
+      - finance analyst
+      - business analyst
+      - fp&a
+      - treasury
+      - accounting
+      - accountant
+      - audit
+      - tax
+      - controller
+      - actuarial
+      - actuary
+      - underwriting
+      - insurance
+      - pension
+      - quant
+      - quantitative
+      - investor relations
+      - economics
+      - economist
+
+    # Extra student words for finance (on top of the shared list above).
+    extra_level_terms:
+      - summer intern
+      - winter analyst
+      - fall analyst
+      - off-cycle
+      - student placement
+      - stagiaire
+      - stagiaires
+
+    # Student words that are only trusted when they appear in the job TITLE
+    # (so the word "student" in a long description does not trigger a match).
+    title_only_level_terms:
+      - student
+      - students
+      - stage
+      - analyst program
+      - analyst programme
+      - campus
+      - early careers
+      - early career
+
+    # Auto-apply (optional, off by default) only applies to jobs in these categories.
+    auto_apply_domains:
+      - Investment Banking
+      - Sales & Trading
+      - Equity Research
+      - Asset Management
+      - Risk
+      - Corporate Finance
+      - Capital Markets
+      - Wealth Management
+      - Accounting
+      - Analyst
+
+    # Companies auto-apply must never apply to. Example: [Some Company, Another Company]
+    blocklist: []
+
+    companies:
+      # name = what shows in the email. slug = the part of the job board address after the site name.
+      # Example: https://boards.greenhouse.io/janestreet  ->  slug: janestreet
+      greenhouse:
+        - {name: William Blair, slug: williamblair}
+        - {name: General Atlantic, slug: generalatlantic}
+        - {name: LionTree, slug: liontree}
+        - {name: Ducera Partners, slug: ducerapartners}
+        - {name: AQ Technology Partners, slug: aqtechnologypartners}
+        - {name: Lincoln International, slug: lincolninternational}
+        - {name: B. Riley Securities, slug: brileysecurities}
+        - {name: Level Equity, slug: levelequity}
+        - {name: AQR Capital Management, slug: aqr}
+        - {name: StepStone Group, slug: stepstone}
+        - {name: GCM Grosvenor, slug: gcmgrosvenor}
+        - {name: Bracebridge Capital, slug: bracebridgecapital}
+        - {name: Audax Group, slug: audaxgroup}
+        - {name: Weiss Asset Management, slug: weissassetmanagement}
+        - {name: Oak Hill Advisors, slug: oakhilladvisors}
+        - {name: Roark Capital, slug: roarkcapitalgroup}
+        - {name: The Riverside Company, slug: theriversidecompany}
+        - {name: Adams Street Partners, slug: adamsstreetpartners}
+        - {name: Viking Global Investors, slug: vikingglobalinvestors}
+        - {name: Marshall Wace, slug: marshallwace}
+        - {name: ExodusPoint, slug: exoduspoint}
+        - {name: Man Group, slug: mangroup}
+        - {name: DigitalBridge, slug: digitalbridge}
+        - {name: EQT, slug: eqtpartners}
+        - {name: Artisan Partners, slug: artisanpartners}
+        - {name: Harris Associates, slug: harrisassociates}
+        - {name: Ariel Investments, slug: arielinvestments}
+        - {name: Cohen & Steers, slug: cohensteers}
+        - {name: Baron Capital, slug: baroncapital}
+        - {name: UVIMCO, slug: uvimco}
+        - {name: Schonfeld, slug: schonfeld}
+        - {name: Jane Street, slug: janestreet}
+        - {name: Point72, slug: point72}
+        - {name: Akuna Capital, slug: akunacapital}
+        - {name: Tower Research Capital, slug: towerresearchcapital}
+        - {name: Jump Trading, slug: jumptrading}
+        - {name: Virtu Financial, slug: virtu}
+        - {name: Flow Traders, slug: flowtraders}
+        - {name: Chicago Trading Company, slug: chicagotrading}
+        - {name: DV Trading, slug: dvtrading}
+        - {name: Squarepoint Capital, slug: squarepointcapital}
+        - {name: Qube Research & Technologies, slug: quberesearchandtechnologies}
+        - {name: WorldQuant, slug: worldquant}
+        - {name: PDT Partners, slug: pdtpartners}
+        - {name: Voloridge, slug: voloridgeinvestmentmanagement}
+        - {name: Forvis Mazars, slug: forvismazars}
+        - {name: Schneider Downs, slug: schneiderdowns}
+        - {name: Frazier & Deeter, slug: frazierdeeter}
+      lever:
+        - {name: D.A. Davidson, slug: dadavidson}
+        - {name: Belvedere Trading, slug: belvederetrading}
+        - {name: MetLife Investment Management, slug: metlife}
+        - {name: Moore Colson, slug: moorecolson}
+      ashby:
+        - {name: Wealthsimple, slug: wealthsimple}
+        - {name: Old Mission Capital, slug: old-mission-capital}
+
+      # Workday: https://TENANT.HOST.myworkdayjobs.com/SITE
+      workday:
+        # Canadian banks
+        - {name: RBC, tenant: rbc, host: wd3, site: RBCGLOBAL1}
+        - {name: RBC, tenant: rbc, host: wd3, site: RBCEARLYTALENT1}
+        - {name: TD, tenant: td, host: wd3, site: TD_Bank_Careers}
+        - {name: CIBC, tenant: cibc, host: wd3, site: search}
+        - {name: CIBC, tenant: cibc, host: wd3, site: campus}
+        - {name: BMO, tenant: bmo, host: wd3, site: External}
+        - {name: Desjardins, tenant: desjardins, host: wd10, site: desjardins}
+        # Canadian and US insurers
+        - {name: Sun Life, tenant: sunlife, host: wd3, site: Experienced-Jobs}
+        - {name: Sun Life, tenant: sunlife, host: wd3, site: Campus}
+        - {name: Prudential, tenant: prudential, host: wd3, site: prudential}
+        - {name: AIG, tenant: aig, host: wd1, site: aig}
+        - {name: Allstate, tenant: allstate, host: wd5, site: allstate_careers}
+        - {name: Travelers, tenant: travelers, host: wd5, site: External}
+        - {name: MassMutual, tenant: massmutual, host: wd1, site: MMCareers}
+        - {name: Marsh McLennan, tenant: mmc, host: wd1, site: mmc}
+        # Pension funds
+        - {name: CPP Investments, tenant: cppib, host: wd10, site: cppinvestments}
+        - {name: OMERS, tenant: omers, host: wd3, site: omers_External}
+        - {name: PSP Investments, tenant: investpsp, host: wd3, site: psp_careers}
+        - {name: BCI, tenant: bci, host: wd10, site: Bci_Careers}
+        - {name: CDPQ, tenant: cdpq, host: wd10, site: CDPQ}
+        - {name: AIMCo, tenant: aimco, host: wd10, site: AIMCoCareers}
+        - {name: TIAA, tenant: tiaa, host: wd1, site: Search}
+        # Asset managers and alternatives
+        - {name: Brookfield, tenant: brookfield, host: wd5, site: brookfield}
+        - {name: Fidelity, tenant: fmr, host: wd1, site: FidelityCareers}
+        - {name: BlackRock, tenant: blackrock, host: wd1, site: BlackRock_Professional}
+        - {name: Vanguard, tenant: vanguard, host: wd5, site: vanguard_external}
+        - {name: State Street, tenant: statestreet, host: wd1, site: Global}
+        - {name: T. Rowe Price, tenant: troweprice, host: wd5, site: troweprice}
+        - {name: Neuberger Berman, tenant: nb, host: wd1, site: nbCareers}
+        - {name: Invesco, tenant: invesco, host: wd1, site: IVZ}
+        - {name: Wellington Management, tenant: wellington, host: wd5, site: External}
+        - {name: Northern Trust, tenant: ntrs, host: wd1, site: northerntrust}
+        - {name: Blackstone, tenant: blackstone, host: wd1, site: BLACKSTONE_Careers}
+        - {name: Carlyle, tenant: carlyle, host: wd1, site: carlyle}
+        - {name: Oaktree, tenant: oaktree, host: wd1, site: Oaktree}
+        - {name: Ameriprise, tenant: ameriprise, host: wd5, site: Ameriprise}
+        - {name: Raymond James, tenant: raymondjames, host: wd1, site: RAYMONDJAMESCareers}
+        - {name: Morningstar, tenant: morningstar, host: wd5, site: morningstar}
+        # Large banks
+        - {name: Morgan Stanley, tenant: ms, host: wd5, site: External}
+        - {name: Citi, tenant: citi, host: wd5, site: "2"}
+        - {name: Wells Fargo, tenant: wf, host: wd1, site: WellsFargoJobs}
+        - {name: PNC, tenant: pnc, host: wd5, site: External}
+        - {name: Truist, tenant: truist, host: wd1, site: Careers}
+        - {name: U.S. Bank, tenant: usbank, host: wd1, site: US_Bank_Careers}
+        - {name: Capital One, tenant: capitalone, host: wd12, site: Capital_One}
+        - {name: Barclays, tenant: barclays, host: wd3, site: External_Career_Site_Barclays}
+        - {name: Deutsche Bank, tenant: db, host: wd3, site: DBWebsite}
+        # Accounting and audit
+        - {name: PwC Campus, tenant: pwc, host: wd3, site: Global_Campus_Careers}
+        - {name: BDO, tenant: bdo, host: wd3, site: bdo}
+        - {name: RSM, tenant: rsm, host: wd1, site: RSMcareers}
+
+      # Company career sites that publish a public job feed.
+      #   format rss: a feed with a title and description for every job
+      #   format sitemap: a list of job links (the title is read from the link)
+      feeds:
+        - {name: Scotiabank, format: rss, urls: ["https://jobs.scotiabank.com/sitemap.xml"]}
+        - {name: Canada Life, format: sitemap, urls: ["https://jobs.canadalife.com/sitemap.xml"]}
+        - name: National Bank
+          format: rss
+          urls:
+            - "https://emplois.bnc.ca/en_CA/careers/SearchJobs/intern/feed/"
+            - "https://emplois.bnc.ca/en_CA/careers/SearchJobs/co-op/feed/"
+            - "https://emplois.bnc.ca/en_CA/careers/SearchJobs/stagiaire/feed/"
+            - "https://emplois.bnc.ca/en_CA/careers/SearchJobs/analyst/feed/"
+
+  # ===========================================================================
+  #  TECH
+  # ===========================================================================
+  tech:
+    llm_focus: >-
+      software engineering, data science, data engineering, machine learning and AI,
+      and quantitative research or trading technology
+    domains:
+      "SWE": software engineering of any kind
+      "Data": real data science, data engineering, analytics engineering or ML work with technical substance (SQL, Python, pipelines, modeling). Spreadsheet and dashboard reporting for a non-technical function is NOT Data.
+      "Quant": quantitative research or trading
+      "Finance": finance work that is not engineering
+      "Trading": trading desk roles
+
+    roles:
+      - software engineer
+      - software engineering
+      - software developer
+      - swe
+      - backend engineer
+      - back-end engineer
+      - frontend engineer
+      - front-end engineer
+      - full stack engineer
+      - full-stack engineer
+      - fullstack engineer
+      - mobile engineer
+      - ios engineer
+      - android engineer
+      - site reliability engineer
+      - sre
+      - devops engineer
+      - cloud engineer
+      - security engineer
+      - infrastructure engineer
+      - platform engineer
+      - systems engineer
+      - qa engineer
+      - test engineer
+      - application engineer
+      - web developer
+      - trading
+      - trader
+      - algorithmic trading
+      - quant
+      - quantitative
+      - quantitative research
+      - quantitative developer
+      - quantitative analyst
+      - quantitative researcher
+      - data science
+      - data scientist
+      - data analyst
+      - data analytics
+      - data engineering
+      - data engineer
+      - machine learning
+      - ml engineer
+      - ai engineer
+      - ai/ml
+      - applied scientist
+      - research engineer
+      - computer vision
+      - nlp
+      - artificial intelligence
+      - business intelligence
+      - analytics
+      - research analyst
+
+    extra_level_terms: []
+    title_only_level_terms: []
+
+    # Auto-apply (optional, off by default) only applies to jobs in these categories.
+    auto_apply_domains: [SWE, Data]
+
+    # Companies auto-apply must never apply to.
+    blocklist: [Google, Alphabet, Meta, Facebook, Amazon, Apple, Microsoft, Netflix, LinkedIn]
+
+    companies:
+      greenhouse:
+        - {name: Stripe, slug: stripe}
+        - {name: Airbnb, slug: airbnb}
+        - {name: Databricks, slug: databricks}
+        - {name: Anthropic, slug: anthropic}
+        - {name: Coinbase, slug: coinbase}
+        - {name: Robinhood, slug: robinhood}
+        - {name: Brex, slug: brex}
+        - {name: Affirm, slug: affirm}
+        - {name: SoFi, slug: sofi}
+        - {name: Chime, slug: chime}
+        - {name: Toast, slug: toast}
+        - {name: Jane Street, slug: janestreet}
+        - {name: Point72, slug: point72}
+        - {name: Akuna Capital, slug: akunacapital}
+        - {name: Tower Research Capital, slug: towerresearchcapital}
+        - {name: Jump Trading, slug: jumptrading}
+        - {name: Virtu Financial, slug: virtu}
+        - {name: Flow Traders, slug: flowtraders}
+        - {name: WorldQuant, slug: worldquant}
+        - {name: Squarepoint Capital, slug: squarepointcapital}
+        - {name: Qube Research & Technologies, slug: quberesearchandtechnologies}
+        - {name: AQR, slug: aqr}
+        - {name: Man Group, slug: mangroup}
+        - {name: DV Trading, slug: dvtrading}
+      lever:
+        - {name: Palantir, slug: palantir}
+        - {name: Belvedere Trading, slug: belvederetrading}
+      ashby:
+        - {name: OpenAI, slug: openai}
+        - {name: Snowflake, slug: snowflake}
+        - {name: Ramp, slug: ramp}
+        - {name: Plaid, slug: plaid}
+        - {name: Wealthsimple, slug: wealthsimple}
+        - {name: Voleon, slug: voleon}
+      workday:
+        - {name: TD, tenant: td, host: wd3, site: TD_Bank_Careers}
+        - {name: RBC, tenant: rbc, host: wd3, site: RBCEARLYTALENT1}
+        - {name: CIBC, tenant: cibc, host: wd3, site: campus}
+        - {name: BMO, tenant: bmo, host: wd3, site: External}
+        - {name: CPP Investments, tenant: cppib, host: wd10, site: cppinvestments}
+        - {name: Mastercard, tenant: mastercard, host: wd1, site: CorporateCareers}
+        - {name: Capital One, tenant: capitalone, host: wd12, site: Capital_One}
+      feeds: []

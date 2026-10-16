@@ -1,0 +1,5 @@
+-r requirements.txt
+psycopg2-binary==2.9.12
+playwright==1.49.1
+pypdf==5.1.0
+matplotlib==3.9.4

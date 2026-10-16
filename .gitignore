@@ -1,11 +1,21 @@
+# Secrets and personal files: never commit these
 .env
+.env.*
+!.env.example
 private/
+answers.yaml
+*.pdf
+*.docx
+screenshots/
+
+# Local clutter
 venv/
-jobs.db
-scheduler.log
-scheduler_error.log
+.venv/
 __pycache__/
 *.pyc
 .DS_Store
-applier.log
-applier_error.log
+*.log
+
+# The alerts workflow saves this file back to your copy of the repo itself
+# (it is added with "git add -f"), so it is ignored for normal local use.
+jobs.db
